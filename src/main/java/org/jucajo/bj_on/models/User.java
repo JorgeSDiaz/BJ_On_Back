@@ -1,10 +1,11 @@
 package org.jucajo.bj_on.models;
 
 import nonapi.io.github.classgraph.json.Id;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Document
 public class User {
@@ -13,14 +14,17 @@ public class User {
     @Indexed(unique = true)
     private String name;
     private Integer coins;
-    private Date creationDate;
+    @CreatedDate
+    private final LocalDate createdAt;
+
+    public User(String name, Integer coins) {
+        this.name = name;
+        this.coins = coins;
+        this.createdAt = LocalDate.now();
+    }
 
     public String getUserId() {
         return this.userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public String getName() {
@@ -39,11 +43,7 @@ public class User {
         this.coins = coins;
     }
 
-    public Date getCreationDate() {
-        return this.creationDate;
-    }
-
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
+    public LocalDate getCreationDate() {
+        return this.createdAt;
     }
 }

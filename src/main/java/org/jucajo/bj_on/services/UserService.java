@@ -1,12 +1,13 @@
 package org.jucajo.bj_on.services;
 
 import org.jucajo.bj_on.models.User;
-import org.jucajo.bj_on.persistence.UserException;
+import org.jucajo.bj_on.persistence.UserServiceException;
 import org.jucajo.bj_on.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * User services
@@ -21,54 +22,41 @@ public class UserService {
     /**
      * Find all saved users in database
      * @return list of registered users in database
-     * @throws UserException No users in database
+     * @throws UserServiceException No users in database
      */
-    public List<User> findAllUsers() throws UserException {
+    public List<User> findAllUsers() throws UserServiceException {
         List<User> users = repository.findAll();
         if (users.isEmpty()) {
-            throw new UserException(UserException.NOT_FOUND);
+            throw new UserServiceException(UserServiceException.NOT_FOUND);
         }
 
         return users;
     }
 
     /**
-     * Find user by the given id
-     * @param userId User id
-     * @return The searched user
-     * @throws UserException User not found with the given id
-     */
-    public User findUserById(String userId) throws UserException {
-        if (repository.findById(userId).isEmpty()) {
-            throw new UserException(UserException.NOT_FOUND);
-        }
-
-        return repository.findById(userId).get();
-    }
-
-    /**
      * Find user by given name
      * @param userName Name of user searched
      * @return The searched user
-     * @throws UserException User not found with the given name
+     * @throws UserServiceException User not found with the given name
      */
-    public User findUserByName(String userName) throws UserException {
-        if (repository.findUserByName(userName).isEmpty()) {
-            throw new UserException(UserException.NOT_FOUND);
+    public User findUserByName(String userName) throws UserServiceException {
+        Optional<User> user = repository.findUserByName(userName);
+        if (user.isEmpty()) {
+            throw new UserServiceException(UserServiceException.NOT_FOUND);
         }
 
-        return repository.findUserByName(userName).get();
+        return user.get();
     }
 
     /**
      * Add a new user in database
      * @param newUser User
      * @return User registered in database
-     * @throws UserException User already exists
+     * @throws UserServiceException User already exists
      */
-    public User createUser(User newUser) throws UserException {
+    public User createUser(User newUser) throws UserServiceException {
         if (repository.findUserByName(newUser.getName()).isPresent()) {
-            throw new UserException(UserException.ALREADY_EXISTS);
+            throw new UserServiceException(UserServiceException.ALREADY_EXISTS);
         }
 
         return repository.save(newUser);
@@ -78,11 +66,11 @@ public class UserService {
      * Update a user in the database
      * @param newUser User with updated information
      * @return User updated in database
-     * @throws UserException User to update not found
+     * @throws UserServiceException User to update not found
      */
-    public User updateUser(User newUser) throws UserException {
+    public User updateUser(User newUser) throws UserServiceException {
         if (repository.findUserByName(newUser.getName()).isEmpty()) {
-            throw new UserException(UserException.NOT_FOUND);
+            throw new UserServiceException(UserServiceException.NOT_FOUND);
         }
 
         return repository.save(newUser);
@@ -92,11 +80,11 @@ public class UserService {
      * Delete user in database
      * @param userName Name of the user to be deleted
      * @return Deleted user information in database
-     * @throws UserException User to be deleted is not found
+     * @throws UserServiceException User to be deleted is not found
      */
-    public User deleteUserByName(String userName) throws UserException {
+    public User deleteUserByName(String userName) throws UserServiceException {
         if (repository.findUserByName(userName).isEmpty()) {
-            throw new UserException(UserException.NOT_FOUND);
+            throw new UserServiceException(UserServiceException.NOT_FOUND);
         }
 
         return repository.deleteUserByName(userName);
