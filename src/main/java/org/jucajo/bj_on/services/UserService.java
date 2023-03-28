@@ -68,12 +68,16 @@ public class UserService {
      * @return User updated in database
      * @throws UserServiceException User to update not found
      */
-    public User updateUser(User newUser) throws UserServiceException {
-        if (repository.findUserByName(newUser.getName()).isEmpty()) {
+    public User updateUser(User newUser, String username) throws UserServiceException {
+        if (repository.findUserByName(username).isEmpty()) {
             throw new UserServiceException(UserServiceException.NOT_FOUND);
         }
 
-        return repository.save(newUser);
+        User userToUpdate = repository.findUserByName(username).get();
+        userToUpdate.setName(newUser.getName());
+        userToUpdate.setCoins(newUser.getCoins());
+
+        return repository.save(userToUpdate);
     }
 
     /**

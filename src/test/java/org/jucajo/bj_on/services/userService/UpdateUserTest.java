@@ -29,12 +29,12 @@ public class UpdateUserTest {
     public void setUp() {
         user = new User("jorge", 500);
         // Given
-        newUser = new User("jorge", 1_000);
+        newUser = new User("julian", 1_000);
     }
 
     @Test
     public void givenUpdatedUser_whenUpdateUser_thenReturnUser() {
-        when(repository.findUserByName("jorge")).thenReturn(Optional.ofNullable(user));
+        when(repository.findUserByName("jorge")).thenReturn(Optional.of(newUser));
         when(repository.save(any(User.class))).thenReturn(newUser);
 
         // Given
@@ -43,16 +43,16 @@ public class UpdateUserTest {
         // When
         User updatedUser = null;
         try {
-            updatedUser = service.updateUser(newUser);
+            updatedUser = service.updateUser(new User("julian", 100), "jorge");
         } catch (UserServiceException e) {
             fail(e.getMessage());
         }
 
         // Then
-        assertEquals(user.getName(), updatedUser.getName());
+        assertNotEquals(user.getName(), updatedUser.getName());
         assertNotEquals(user.getCoins(), updatedUser.getCoins());
-        verify(repository, times(1)).save(newUser);
-        verify(repository, times(1)).findUserByName("jorge");
+        verify(repository, times(1)).save(updatedUser);
+        verify(repository, times(2)).findUserByName("jorge");
     }
 
     @Test
@@ -64,7 +64,7 @@ public class UpdateUserTest {
 
         // When
         try {
-            service.updateUser(newUser);
+            service.updateUser(newUser, "jorge");
         } catch (UserServiceException e) {
             assertEquals(UserServiceException.NOT_FOUND, e.getMessage());
         }
