@@ -7,15 +7,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 
-@Document
+@Document("users")
 public class User {
     @Id
-    private String userId;
+    private String id;
     @Indexed(unique = true)
     private String name;
     private Integer coins;
     @CreatedDate
-    private final LocalDate createdAt;
+    private LocalDate createdAt;
 
     public User(String name, Integer coins) {
         this.name = name;
@@ -23,12 +23,16 @@ public class User {
         this.createdAt = LocalDate.now();
     }
 
-    public String getUserId() {
-        return this.userId;
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
-        return this.name;
+        return name;
     }
 
     public void setName(String name) {
@@ -36,14 +40,18 @@ public class User {
     }
 
     public Integer getCoins() {
-        return this.coins;
+        return coins;
     }
 
     public void setCoins(Integer coins) {
         this.coins = coins;
     }
 
-    public LocalDate getCreationDate() {
-        return this.createdAt;
+    public LocalDate getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDate createdAt) {
+        this.createdAt = createdAt;
     }
 }
