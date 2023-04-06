@@ -22,6 +22,7 @@ var app = (function(){
                 type: "POST",
                 url: "http://localhost:8080/game/v1.0/player",
                 data: user,
+                contentType: "application/json",
                 success: function(response) {
                 alert(Object.keys(response).length + " estan en la partida");
                 // aquí puedes hacer algo con la respuesta, como asignarla a una variable
@@ -57,12 +58,11 @@ var app = (function(){
             var name = document.getElementById("name").value;
             console.log(name);
             var user = {
-                "id":"1",
                 "name" : name,
                 "coins" : 1000,
                 "createdAt" : "2023-04-02"
             }
-            connect(user)
+            connect(JSON.stringify(user))
             
         },
 

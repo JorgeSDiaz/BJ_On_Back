@@ -14,10 +14,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 
 
@@ -122,6 +122,11 @@ public class GameController {
     @GetMapping("/elapsedtime")
     public ResponseEntity<?> elapsedTime(){
         elapsedTime = System.currentTimeMillis() - startTime;
+        if(elapsedTime > 15000){
+            canRegistryBet = false;
+            elapsedTime = 0;
+            return new ResponseEntity<>(15000,HttpStatus.OK);
+        }
         return new ResponseEntity<>(elapsedTime,HttpStatus.OK);
 
     }
