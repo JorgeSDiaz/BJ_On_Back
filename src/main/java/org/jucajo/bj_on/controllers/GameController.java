@@ -4,6 +4,7 @@ import org.jucajo.bj_on.models.Bet;
 import org.jucajo.bj_on.models.Box;
 import org.jucajo.bj_on.models.User;
 import org.jucajo.bj_on.persistence.GameControllerException;
+import org.jucajo.bj_on.services.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
-import java.util.concurrent.ConcurrentHashMap;
+
 
 
 
@@ -26,29 +27,44 @@ import java.util.concurrent.ConcurrentHashMap;
 @RestController
 @RequestMapping(path = "/game/v1.0")
 public class GameController {
-    ConcurrentHashMap<String,User> ListPlayer = new ConcurrentHashMap<>();
-    ConcurrentHashMap<String,Box> boxBets = new ConcurrentHashMap<>();
-
+    
     private boolean canRegistryBet = false;
+
+    private long startTime;
+
+    private long elapsedTime;
 
 
 
     @Autowired
     SimpMessagingTemplate msgt;
 
+    @Autowired
+    GameService gameService; 
+
     @PostMapping("/player")
     public  ResponseEntity<?>  addNewPlayer(@RequestBody User newUser) throws GameControllerException{
-        if(ListPlayer.size() == 4){
-            return new ResponseEntity<>(GameControllerException.GAME_FULL, HttpStatus.CONFLICT);
+        try{
+            gameService.addNewPlayer(newUser);
+            msgt.convertAndSend("/topic/players",newUser);
+            return new ResponseEntity<>(GameControllerException.ON_GAME, HttpStatus.CREATED);
 
+        }catch(GameControllerException e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.FORBIDDEN);
 
-        }
-        else{
-            ListPlayer.put(newUser.getName(),newUser);
-            msgt.convertAndSend("/topic/players", newUser);
-            return new ResponseEntity<>(ListPlayer, HttpStatus.OK);
         }
         
+        
+    }
+
+
+    @GetMapping("/player")
+    public ResponseEntity<?> getPlayers() throws GameControllerException{
+        try{
+            return new ResponseEntity<>(gameService.getPlayers(),HttpStatus.OK);
+        }catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
+        }
     }
 
 
@@ -69,24 +85,16 @@ public class GameController {
     @PostMapping("/betbox")
     public ResponseEntity <?> registerBet(@RequestBody Box newBox) throws GameControllerException{
         if(canRegistryBet){
-            if(boxBets.containsKey(newBox.getCard())){
-                //EN EL CASO DE QUE  QUIERA CAMBIAR SU APUESTA YA HECHA
-                if(boxBets.get(newBox.getCard()).getBet().getOwner().equals(newBox.getBet().getOwner())){
-                    boxBets.put(newBox.getCard(), newBox);
-                    msgt.convertAndSend("/topic/betextra", boxBets);
-                    return new ResponseEntity<>("BET UPDATE", HttpStatus.ACCEPTED);
-                }
-                else{
-                    //SI VA A APOSTAR OTRA VEZ o MODIFICAR OTRA APUESTA YA HECHA
-                    return new ResponseEntity<>(GameControllerException.NOT_UPDATE_OTHER_BETS_OR_UPDATE_AGAIN, HttpStatus.NOT_ACCEPTABLE);
-                }
-            }
-            else{
-                boxBets.put(newBox.getCard(), newBox);
-                msgt.convertAndSend("/topic/betextra", boxBets);
-                return new ResponseEntity<>("BET CREATED", HttpStatus.ACCEPTED);
+            try{
+                elapsedTime = System.currentTimeMillis() - startTime;
+                gameService.registerBet(newBox);
+                msgt.convertAndSend("/topic/registerbet",gameService.getBets());
+                return new ResponseEntity<>(GameControllerException.REGISTER_BET, HttpStatus.CREATED);
 
-            }
+            }catch(GameControllerException e){
+                return new ResponseEntity<>(e.getMessage(),HttpStatus.CONFLICT);
+
+            }  
         }
         else{
             return new ResponseEntity<>(GameControllerException.TIME_FINISHED, HttpStatus.NOT_FOUND);
@@ -101,6 +109,7 @@ public class GameController {
     @GetMapping("/cronometer")
     public ResponseEntity<?> start(){
         if(!canRegistryBet){
+            startTime = System.currentTimeMillis();
             canRegistryBet = true;
             return new ResponseEntity<>("TIME TO BET",HttpStatus.OK);
         }
@@ -110,18 +119,15 @@ public class GameController {
     }
 
 
-    
+    @GetMapping("/elapsedtime")
+    public ResponseEntity<?> elapsedTime(){
+        elapsedTime = System.currentTimeMillis() - startTime;
+        return new ResponseEntity<>(elapsedTime,HttpStatus.OK);
+
+    }
 
 
 
 
 
-
-
-
-
-    
-
-
-    
 }
