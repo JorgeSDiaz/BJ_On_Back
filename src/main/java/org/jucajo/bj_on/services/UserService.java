@@ -79,18 +79,4 @@ public class UserService {
 
         return repository.save(userToUpdate);
     }
-
-    /**
-     * Delete user in database
-     * @param userName Name of the user to be deleted
-     * @return Deleted user information in database
-     * @throws UserServiceException User to be deleted is not found
-     */
-    public User deleteUserByName(String userName) throws UserServiceException {
-        if (repository.findUserByName(userName).isEmpty()) {
-            throw new UserServiceException(UserServiceException.NOT_FOUND);
-        }
-
-        return repository.deleteUserByName(userName);
-    }
 }
