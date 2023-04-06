@@ -19,7 +19,7 @@ public class BJWebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/topic");
-        config.setApplicationDestinationPrefixes("/appBJ");
+        config.setApplicationDestinationPrefixes("/BJserver");
     }
 
     @Override
