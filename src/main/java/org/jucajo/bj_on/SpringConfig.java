@@ -12,7 +12,7 @@ public class SpringConfig {
     @Bean
     public OpenAPI openAPI() {
         return new OpenAPI().info(
-                new Info().title("Spring Doc").version("1.0").description("Spring Doc")
+                new Info().title("Blackjack_ON By Poker_On").version("1.0").description("Api Doc")
         );
     }
 }

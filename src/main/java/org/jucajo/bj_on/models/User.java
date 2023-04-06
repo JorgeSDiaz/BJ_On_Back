@@ -47,11 +47,11 @@ public class User {
         this.coins = coins;
     }
 
-    public LocalDate getCreatedAt() {
+    public LocalDate getCreationDate() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDate createdAt) {
+    public void setCreationDate(LocalDate createdAt) {
         this.createdAt = createdAt;
     }
 }
