@@ -37,14 +37,32 @@ public class GameService {
                 boxBets.put(newBox.getCard(), newBox);
             }
             else{
-                //SI VA A APOSTAR OTRA VEZ o MODIFICAR OTRA APUESTA YA HECHA
-                throw new GameControllerException(GameControllerException.NOT_UPDATE_OTHER_BETS_OR_UPDATE_AGAIN);
+                //MODIFICAR OTRA APUESTA YA HECHA
+                throw new GameControllerException(GameControllerException.NOT_UPDATE_OTHER_BETS);
             }
         }
         else{
-            boxBets.put(newBox.getCard(), newBox);
+            //si va a apostar otra vez
+            if(ownerYetBet(newBox.getBet().getOwner())){
+                throw new GameControllerException(GameControllerException.ONLY_BET);
+
+            }
+            else{
+                boxBets.put(newBox.getCard(), newBox);
+            }
+            
         }
 
+    }
+
+
+    private boolean ownerYetBet(String owner){
+        for(Box box: boxBets.values()){
+            if(box.getBet().getOwner().equals(owner)){
+                return true;
+            }
+        }
+        return false;
     }
 
     public ConcurrentHashMap<String,Box> getBets(){

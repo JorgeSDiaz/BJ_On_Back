@@ -18,6 +18,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 
 
 
@@ -26,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/game/v1.0")
+@Tag(name = "Game", description = "Game APIrest")
 public class GameController {
     
     private boolean canRegistryBet = false;
@@ -40,7 +48,43 @@ public class GameController {
     SimpMessagingTemplate msgt;
 
     @Autowired
-    GameService gameService; 
+    GameService gameService;
+    
+    @Operation(
+        description = "Add user to the room",
+        responses = {
+             @ApiResponse(
+                responseCode = "201",
+                description = "CONNECTION SUCCESFULL",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = User.class)
+
+                )
+             ),
+             @ApiResponse(
+                responseCode = "403",
+                description = "GAME FULL",
+                content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                        @ExampleObject(
+                            value = """
+                                    {
+                                        "error":\s
+                                        {
+                                            "code" : 403,\s
+                                            "message":"GAME FULL"
+                                        }
+                                    }
+                                    """
+                        ),
+                    }
+                )
+             )
+        }
+
+    )
 
     @PostMapping("/player")
     public  ResponseEntity<?>  addNewPlayer(@RequestBody User newUser) throws GameControllerException{
@@ -58,13 +102,30 @@ public class GameController {
     }
 
 
+
+
+
+    @Operation(
+        description = "Get all users that at the room",
+        responses = {
+             @ApiResponse(
+                responseCode = "201",
+                description = "CONNECTION SUCCESFULL",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                        type = "Object",
+                        implementation = User.class
+                    )
+                )
+             )
+        }
+             
+
+    )
     @GetMapping("/player")
     public ResponseEntity<?> getPlayers() throws GameControllerException{
-        try{
-            return new ResponseEntity<>(gameService.getPlayers(),HttpStatus.OK);
-        }catch(Exception e){
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(gameService.getPlayers(),HttpStatus.OK);
     }
 
 
@@ -104,6 +165,12 @@ public class GameController {
     }
 
 
+    @GetMapping("/betbox")
+    public ResponseEntity<?> getBets(){
+        return new ResponseEntity<>(gameService.getBets(), HttpStatus.OK);
+    }
+
+
 
 
     @GetMapping("/cronometer")
@@ -125,6 +192,7 @@ public class GameController {
         if(elapsedTime > 15000){
             canRegistryBet = false;
             elapsedTime = 0;
+            msgt.convertAndSend("/topic/elapsedtime","TIME TO BET FINISHED");
             return new ResponseEntity<>(15000,HttpStatus.OK);
         }
         return new ResponseEntity<>(elapsedTime,HttpStatus.OK);
