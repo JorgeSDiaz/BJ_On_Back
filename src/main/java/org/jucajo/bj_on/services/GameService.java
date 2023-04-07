@@ -1,5 +1,7 @@
 package org.jucajo.bj_on.services;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jucajo.bj_on.models.Bet;
@@ -25,8 +27,9 @@ public class GameService {
     }
 
 
-    public ConcurrentHashMap<String,User> getPlayers(){
-        return ListPlayer;
+    public List<User> getPlayers(){
+        List<User> valuelist = new ArrayList<>(ListPlayer.values());
+        return valuelist;
     }
 
 
@@ -65,8 +68,9 @@ public class GameService {
         return false;
     }
 
-    public ConcurrentHashMap<String,Box> getBets(){
-        return boxBets;
+    public List<Box> getBets(){
+        List<Box> valuelist = new ArrayList<>(boxBets.values());
+        return valuelist;
     }
 
 

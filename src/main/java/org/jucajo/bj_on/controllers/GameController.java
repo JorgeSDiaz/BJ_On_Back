@@ -33,7 +33,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping(path = "/game/v1.0")
-@Tag(name = "Game", description = "Game APIrest")
+@Tag(name = "game-controller", description = "Game APIrest")
 public class GameController {
     
     private boolean canRegistryBet = false;
@@ -51,10 +51,10 @@ public class GameController {
     GameService gameService;
     
     @Operation(
-        description = "Add user to the room",
+        description = "Add user to the room and send a topic /topic/players the new user ",
         responses = {
              @ApiResponse(
-                responseCode = "201",
+                responseCode = "200",
                 description = "CONNECTION SUCCESFULL",
                 content = @Content(
                     mediaType = "application/json",
@@ -63,7 +63,7 @@ public class GameController {
                 )
              ),
              @ApiResponse(
-                responseCode = "403",
+                responseCode = "409",
                 description = "GAME FULL",
                 content = @Content(
                     mediaType = "application/json",
@@ -73,7 +73,7 @@ public class GameController {
                                     {
                                         "error":\s
                                         {
-                                            "code" : 403,\s
+                                            "code" : 409,\s
                                             "message":"GAME FULL"
                                         }
                                     }
@@ -91,10 +91,10 @@ public class GameController {
         try{
             gameService.addNewPlayer(newUser);
             msgt.convertAndSend("/topic/players",newUser);
-            return new ResponseEntity<>(GameControllerException.ON_GAME, HttpStatus.CREATED);
+            return new ResponseEntity<>(GameControllerException.ON_GAME, HttpStatus.OK);
 
         }catch(GameControllerException e){
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.CONFLICT);
 
         }
         
@@ -109,12 +109,11 @@ public class GameController {
         description = "Get all users that at the room",
         responses = {
              @ApiResponse(
-                responseCode = "201",
-                description = "CONNECTION SUCCESFULL",
+                responseCode = "200",
                 content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(
-                        type = "Object",
+                        type = "array",
                         implementation = User.class
                     )
                 )
@@ -142,6 +141,82 @@ public class GameController {
         canRegistryBet = false;
     }
 
+    @Operation(
+        description = "Register bet extra and send a topic /topic/registerbet the new bet ",
+        responses = {
+             @ApiResponse(
+                responseCode = "201",
+                description = "BET REGISTERED",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = Box.class)
+
+                )
+             ),
+             @ApiResponse(
+                responseCode = "409",
+                description = "YOU CANT UPDATE BETS OF THE OTHER PLAYER",
+                content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                        @ExampleObject(
+                            value = """
+                                    {
+                                        "error":\s
+                                        {
+                                            "code" : 409,\s
+                                            "message":"YOU CANT UPDATE BETS OF THE OTHER PLAYER"
+                                        }
+                                    }
+                                    """
+                        ),
+                    }
+                )
+             ),
+             @ApiResponse(
+                responseCode = "409",
+                description = "YOU ONLY BET FOR A ONE NUMBER",
+                content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                        @ExampleObject(
+                            value = """
+                                    {
+                                        "error":\s
+                                        {
+                                            "code" : 409,\s
+                                            "message":"YOU ONLY BET FOR A ONE NUMBER"
+                                        }
+                                    }
+                                    """
+                        ),
+                    }
+                )
+             ),
+             @ApiResponse(
+                responseCode = "409",
+                description = "THE TIME OF BET FINISHED",
+                content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                        @ExampleObject(
+                            value = """
+                                    {
+                                        "error":\s
+                                        {
+                                            "code" : 409,\s
+                                            "message":"THE TIME OF BET FINISHED"
+                                        }
+                                    }
+                                    """
+                        ),
+                    }
+                )
+             )
+        }
+
+    )
+
 
     @PostMapping("/betbox")
     public ResponseEntity <?> registerBet(@RequestBody Box newBox) throws GameControllerException{
@@ -149,7 +224,7 @@ public class GameController {
             try{
                 elapsedTime = System.currentTimeMillis() - startTime;
                 gameService.registerBet(newBox);
-                msgt.convertAndSend("/topic/registerbet",gameService.getBets());
+                msgt.convertAndSend("/topic/registerbet",newBox);
                 return new ResponseEntity<>(GameControllerException.REGISTER_BET, HttpStatus.CREATED);
 
             }catch(GameControllerException e){
@@ -158,11 +233,28 @@ public class GameController {
             }  
         }
         else{
-            return new ResponseEntity<>(GameControllerException.TIME_FINISHED, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(GameControllerException.TIME_FINISHED, HttpStatus.CONFLICT);
         }
         
 
     }
+
+
+    @Operation(
+        description = "Get all bets",
+        responses = {
+             @ApiResponse(
+                responseCode = "200",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                        type = "array",
+                        implementation = Box.class
+                    )
+                )
+             )
+        }
+    )
 
 
     @GetMapping("/betbox")
@@ -171,19 +263,108 @@ public class GameController {
     }
 
 
-
+    @Operation(
+        description = "Start 15 seconds of bets and send topic /topic/elapsedtime the message TIME TO BET",
+        responses = {
+             @ApiResponse(
+                responseCode = "200",
+                content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                        @ExampleObject(
+                            value = """
+                                    {
+                                        "elapsedTime":\s
+                                        {
+                                            "code" : 200,\s
+                                            "message":"TIME TO BET"
+                                        }
+                                    }
+                                    """
+                        ),
+                    }
+                )
+             ),
+             @ApiResponse(
+                responseCode = "400",
+                content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                        @ExampleObject(
+                            value = """
+                                    {
+                                        "elapsedTime":\s
+                                        {
+                                            "code" : 400,\s
+                                            "message":"THE TIME OF BET IS RUNNING"
+                                        }
+                                    }
+                                    """
+                        ),
+                    }
+                )
+             )
+        }
+    )
 
     @GetMapping("/cronometer")
     public ResponseEntity<?> start(){
         if(!canRegistryBet){
             startTime = System.currentTimeMillis();
             canRegistryBet = true;
+            msgt.convertAndSend("/topic/elapsedtime","TIME TO BET");
             return new ResponseEntity<>("TIME TO BET",HttpStatus.OK);
         }
         else{
             return new ResponseEntity<>("THE TIME OF BET IS RUNNING",HttpStatus.BAD_REQUEST);
         }
     }
+
+
+
+    @Operation(
+        description = "get elapsed time and send a topic /topic/elapsedtime the following: if the elapsed time is greater than 15000 then send TIME TO BET FINISHED, otherwise send the elapsed time  ",
+        responses = {
+             @ApiResponse(
+                responseCode = "200",
+                content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                        @ExampleObject(
+                            value = """
+                                    {
+                                        "elapsedTime":\s
+                                        {
+                                            "code" : 200,\s
+                                            "message":"15000"
+                                        }
+                                    }
+                                    """
+                        ),
+                    }
+                )
+             ),
+             @ApiResponse(
+                responseCode = "200",
+                content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                        @ExampleObject(
+                            value = """
+                                    {
+                                        "elapsedTime":\s
+                                        {
+                                            "code" : 200,\s
+                                            "message":"5676"
+                                        }
+                                    }
+                                    """
+                        ),
+                    }
+                )
+             )
+        }
+    )
 
 
     @GetMapping("/elapsedtime")
@@ -194,8 +375,12 @@ public class GameController {
             elapsedTime = 0;
             msgt.convertAndSend("/topic/elapsedtime","TIME TO BET FINISHED");
             return new ResponseEntity<>(15000,HttpStatus.OK);
+        }else{
+            msgt.convertAndSend("/topic/elapsedtime",elapsedTime);
+            return new ResponseEntity<>(elapsedTime,HttpStatus.OK);
+
         }
-        return new ResponseEntity<>(elapsedTime,HttpStatus.OK);
+        
 
     }
 
