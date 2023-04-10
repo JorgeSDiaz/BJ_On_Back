@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.jucajo.bj_on.models.Bet;
 import org.jucajo.bj_on.models.Box;
 import org.jucajo.bj_on.models.User;
 import org.jucajo.bj_on.persistence.GameControllerException;
@@ -20,7 +19,7 @@ public class GameService {
 
 
     public void addNewPlayer(User newUser) throws GameControllerException{
-        if(ListPlayer.size() == 4){
+        if(ListPlayer.size() == 3){
             throw new GameControllerException(GameControllerException.GAME_FULL);
         }
         ListPlayer.put(newUser.getName(), newUser);
@@ -34,10 +33,10 @@ public class GameService {
 
 
     public void registerBet(Box newBox)throws GameControllerException{
-        if(boxBets.containsKey(newBox.getCard())){
+        if(boxBets.containsKey(newBox.getId())){
             //EN EL CASO DE QUE  QUIERA CAMBIAR SU APUESTA YA HECHA
-            if(boxBets.get(newBox.getCard()).getBet().getOwner().equals(newBox.getBet().getOwner())){
-                boxBets.put(newBox.getCard(), newBox);
+            if(boxBets.get(newBox.getId()).getBet().getOwner().equals(newBox.getBet().getOwner())){
+                boxBets.put(newBox.getId(), newBox);
             }
             else{
                 //MODIFICAR OTRA APUESTA YA HECHA
@@ -51,7 +50,7 @@ public class GameService {
 
             }
             else{
-                boxBets.put(newBox.getCard(), newBox);
+                boxBets.put(newBox.getId(), newBox);
             }
             
         }

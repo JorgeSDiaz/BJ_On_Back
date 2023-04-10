@@ -1,6 +1,5 @@
 package org.jucajo.bj_on.controllers;
 
-import org.jucajo.bj_on.models.Bet;
 import org.jucajo.bj_on.models.Box;
 import org.jucajo.bj_on.models.User;
 import org.jucajo.bj_on.persistence.GameControllerException;
@@ -8,16 +7,13 @@ import org.jucajo.bj_on.services.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -122,6 +118,7 @@ public class GameController {
              
 
     )
+    
     @GetMapping("/player")
     public ResponseEntity<?> getPlayers() throws GameControllerException{
         return new ResponseEntity<>(gameService.getPlayers(),HttpStatus.OK);
@@ -229,7 +226,6 @@ public class GameController {
 
             }catch(GameControllerException e){
                 return new ResponseEntity<>(e.getMessage(),HttpStatus.CONFLICT);
-
             }  
         }
         else{
@@ -380,8 +376,6 @@ public class GameController {
             return new ResponseEntity<>(elapsedTime,HttpStatus.OK);
 
         }
-        
-
     }
 
 
