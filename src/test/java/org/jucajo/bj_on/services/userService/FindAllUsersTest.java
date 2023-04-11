@@ -67,7 +67,7 @@ public class FindAllUsersTest {
         }
 
         for (int userIndex = 0; userIndex < usersFilledList.size(); userIndex++) {
-            assertEquals(usersFilledList.get(userIndex).getCreationDate(), returnedList.get(userIndex).getCreationDate());
+            assertEquals(usersFilledList.get(userIndex).getCreatedAt(), returnedList.get(userIndex).getCreatedAt());
         }
 
         verify(repository, times(1)).findAll();
