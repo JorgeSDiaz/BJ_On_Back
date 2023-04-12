@@ -1,13 +1,14 @@
 package org.jucajo.bj_on.services;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.jucajo.bj_on.models.Box;
+import org.jucajo.bj_on.models.Token;
 import org.jucajo.bj_on.models.User;
 import org.jucajo.bj_on.persistence.GameControllerException;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 @Service
@@ -32,11 +33,11 @@ public class GameService {
     }
 
 
-    public void registerBet(Box newBox)throws GameControllerException{
-        if(boxBets.containsKey(newBox.getId())){
+    public void registerBet(String id, String owner, Token newToken)throws GameControllerException{
+        if(boxBets.containsKey(id)){
             //EN EL CASO DE QUE  QUIERA CAMBIAR SU APUESTA YA HECHA
-            if(boxBets.get(newBox.getId()).getBet().getOwner().equals(newBox.getBet().getOwner())){
-                boxBets.put(newBox.getId(), newBox);
+            if(boxBets.get(id).getOwner().equals(owner)){
+                boxBets.put(id, new Box(id, owner, newToken));
             }
             else{
                 //MODIFICAR OTRA APUESTA YA HECHA
@@ -45,12 +46,12 @@ public class GameService {
         }
         else{
             //si va a apostar otra vez
-            if(ownerYetBet(newBox.getBet().getOwner())){
+            if(ownerYetBet(owner)){
                 throw new GameControllerException(GameControllerException.ONLY_BET);
 
             }
             else{
-                boxBets.put(newBox.getId(), newBox);
+                boxBets.put(id, new Box(id, owner, newToken));
             }
             
         }
@@ -60,7 +61,7 @@ public class GameService {
 
     private boolean ownerYetBet(String owner){
         for(Box box: boxBets.values()){
-            if(box.getBet().getOwner().equals(owner)){
+            if(box.getOwner().equals(owner)){
                 return true;
             }
         }
@@ -73,8 +74,7 @@ public class GameService {
     }
 
 
-
-
-
-    
+    public Token getToken(String id) {
+        return boxBets.get(id).getToken();
+    }
 }
