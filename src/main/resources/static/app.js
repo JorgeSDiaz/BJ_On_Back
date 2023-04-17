@@ -33,10 +33,10 @@ const app = (() => {
     }
 
     const drawToken = (ctx, token) => {
-        let img = new Image();
-        console.log(token.color);
-        img.src = token.color;
-        ctx.drawImage(img, token.x, token.y, 10, 10);
+        ctx.fillStyle = token.color;
+        ctx.beginPath();
+        ctx.arc(token.x, token.y , 5, 0, 2 * Math.PI);
+        ctx.fill();
     };
 
     const createToken = (box, x, y) => {
@@ -46,23 +46,23 @@ const app = (() => {
         switch (colorToken) {
             case 'red':
                 tokenArray = box.tenDollarsTokens;
-                color = 'src/red.png';
+                color = 'red';
                 break;
             case 'yellow':
                 tokenArray = box.fiftyDollarsTokens;
-                color = 'src/yellow.png';
+                color = 'yellow';
                 break;
             case 'blue':
                 tokenArray = box.oneHundredDollarsTokens;
-                color = 'src/blue.png';
+                color = 'blue';
                 break;
             case 'green':
                 tokenArray = box.fiveHundredDollarsTokens;
-                color = 'src/green.png';
+                color = 'green';
                 break;
             default:
                 tokenArray = box.tenDollarsTokens;
-                color = 'src/red.png';
+                color = 'red';
                 break;
         }
 
@@ -85,19 +85,19 @@ const app = (() => {
         };
 
         if (box.tenDollarsTokens.length >= 5) {
-            box.fiftyDollarsTokens.push(Token('src/yellow.png', x, y));
+            box.fiftyDollarsTokens.push(Token('yellow', x, y));
             box.tenDollarsTokens.length = 0;
             delete arrays.ten;
         }
 
         if (box.fiftyDollarsTokens.length >= 2) {
-            box.oneHundredDollarsTokens.push(Token('src/blue.png', x, y));
+            box.oneHundredDollarsTokens.push(Token('blue', x, y));
             box.fiftyDollarsTokens.length = 0;
             delete arrays.fifty;
         }
 
         if (box.oneHundredDollarsTokens.length >= 5) {
-            box.fiveHundredDollarsTokens.push(Token('src/green.png', x, y));
+            box.fiveHundredDollarsTokens.push(Token('green', x, y));
             box.oneHundredDollarsTokens.length = 0;
             delete arrays.oneHundred;
         }
@@ -116,13 +116,13 @@ const app = (() => {
     }
 
     const addToken = (box, token) => {
-        if (token.color === 'src/red.png') {
+        if (token.color === 'red') {
             box.tenDollarsTokens.push(token);
-        } else if (token.color === 'src/yellow.png') {
+        } else if (token.color === 'yellow') {
             box.fiftyDollarsTokens.push(token);
-        } else if (token.color === 'src/blue.png') {
+        } else if (token.color === 'blue') {
             box.oneHundredDollarsTokens.push(token);
-        } else if (token.color === 'src/green.png') {
+        } else if (token.color === 'green') {
             box.fiveHundredDollarsTokens.push(token);
         } else {
             box.tenDollarsTokens.push(token);

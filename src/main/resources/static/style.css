@@ -5,7 +5,7 @@ body{
   }
   h2{
     margin-top: 5px;
-    color: rgb(232, 221, 18);
+    color: rgb(0, 0, 0);
   }
   header{
     margin-left: 10px;
@@ -21,7 +21,7 @@ body{
   }
   a{
     text-decoration: none;
-    color: rgb(232, 221, 18);
+    color: rgb(0, 0, 0);
     margin-right: 6px;
   }
   .table {
@@ -53,27 +53,25 @@ body{
 .canvas-container {
     position: absolute;
     display: grid;
-    grid-template-columns: repeat(3, 30px);
-    grid-template-rows: repeat(3, 30px);
+    grid-template-columns: repeat(3, 50px);
+    grid-template-rows: repeat(3, 50px);
     gap: 3px;
-    top: 200px;
-    left: 50px;
+    top: 230px;
+    left: 90px;
     transform: translate(-50%, -50%);
-    z-index: 1; 
     margin-left: 8px;
 }
 
 .div-container {
     position: absolute; 
     display: grid;
-    grid-template-columns: repeat(3, 30px);
-    grid-template-rows: repeat(3, 30px);
+    grid-template-columns: repeat(3, 50px);
+    grid-template-rows: repeat(3, 50px);
     gap: 3px;
     margin-top: 5px;
-    top: 200px;
-    left: 50px;
+    top: 230px;
+    left: 90px;
     transform: translate(-50%, -50%);
-    z-index: 0; 
 }
 
 
@@ -94,9 +92,9 @@ canvas {
 }
 
 .right{
+    width: 50%;
     margin-top: 20px;
     margin-left: 10px;
-    
 }
 
 
