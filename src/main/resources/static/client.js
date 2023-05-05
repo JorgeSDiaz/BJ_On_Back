@@ -21,6 +21,26 @@ client = (() => {
         );
     };
 
+    const addUser = (user) => {
+        return new Promise((resolve,reject) =>{
+            $.ajax(
+                {
+                    url : resource + "/players",
+                    type : "POST",
+                    data : JSON.stringify(user),
+                    contentType : "application/json",
+                    success:(data) =>{
+                        resolve(data);
+                    },
+                    error:(err) => {
+                        reject(err)
+                    }
+
+                }
+            )
+        })
+    }
+
     // Public
     return {
         registerBet: (id, owner, token) => {
