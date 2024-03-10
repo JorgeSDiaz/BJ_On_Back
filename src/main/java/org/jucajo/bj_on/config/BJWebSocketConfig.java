@@ -24,7 +24,6 @@ public class BJWebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/BJgame").withSockJS();
-        
     }
     
 
